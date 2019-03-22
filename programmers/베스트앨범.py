@@ -1,3 +1,16 @@
+
+# second Trial with pythonic? '03/22'
+def solution(genres, plays):
+    answer = []
+    d = {e: [] for e in set(genres)}
+    print(range(1))
+    for e in zip(genres, plays, range(len(plays))):
+        print(e)
+    return answer
+
+'''
+# first Trial with class based solution '03/22'
+
 class Song:
     def __init__(self, idx, play):
         self.idx = idx
@@ -38,7 +51,7 @@ def solution(genres, plays):
             answer.append(genre_dict[key].song_list[i].idx)
 
     return answer
-
+'''
 
 if __name__ == '__main__':
     genres = ['classic', 'pop', 'classic', 'classic', 'pop']
