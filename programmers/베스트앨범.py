@@ -1,4 +1,3 @@
-
 # second Trial with pythonic? '03/22'
 def solution(genres, plays):
     answer = []
