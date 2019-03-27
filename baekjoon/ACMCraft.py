@@ -19,6 +19,71 @@ def solution():
 
         target_bldg = int(sys.stdin.readline())
 
+        print(dfs(adj=adj_dict, start=1))
+
+'''
+def dfs(adj, start):
+    visited = list()
+    parent = dict()
+    stack = list()
+
+    stack.append(start)
+
+    while len(stack) != 0:
+        v = stack.pop()
+        visited.append(v)
+        for e in adj[v]:
+            if e not in visited:
+                dfs_visit(adj, e, visited, parent)
+
+    return visited
+
+
+def dfs_visit(adj, v, visited, parent):
+
+    for e in adj[v]:
+'''
+
+
+# with recursive
+def dfs(adj, start):
+    visited = list()
+    finished = list()
+    dfs_visit(adj, start, visited, finished)
+    return visited
+
+
+def dfs_visit(adj, v, visited, finished):
+    visited.append(v)
+    for u in adj[v]:
+        if u not in visited:
+            dfs_visit(adj, u, visited)
+        elif u not in finished:
+            cycle = True
+    finished.append(u)
+
+
+
+
+# without recursive
+def dfs_without_recursive(adj, start):
+    visited = list()
+    stack = [start]
+
+    while stack:
+        n = stack.pop()
+        visited.append(n)
+        for v in adj[n]:
+            if v not in visited:
+                stack.append(v)
+
+    return visited
+
+
+
+
+
+
 
 
 
