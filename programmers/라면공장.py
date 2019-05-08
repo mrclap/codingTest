@@ -1,5 +1,12 @@
+import heapq
+
 def solution(stock, dates, supplies, k):
     answer = 0
+
+    # while stock < k:
+    for d in reversed(dates):
+        print(d)
+
     return answer
 
 if __name__ == '__main__':
