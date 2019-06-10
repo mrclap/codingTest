@@ -22,15 +22,22 @@ B : 0스트라이크 1볼.
 질문한 세 자리의 수, 스트라이크의 수, 볼의 수를 담은 2차원 배열 baseball이 매개변수로 주어질 때, 가능한 답의 개수를 return 하도록 solution 함수를 작성해주세요.
 '''
 
+'''
+6/10 1차 시도
+만들 수 있는 모든 경우의 숫자조합을 만들어 놓고(1~9의 숫자를 중복하지 않고 순서와 상관있이 3개 뽑음)
+각 시도마다 불가능한 녀석들을 지워가며 후보들을 줄이는 방식으로 풀이.
+'''
+
+
 CONSTANT = dict()
 CONSTANT['size'] = 3
+
 
 def solution(baseball):
     answer = 0
 
-    NUMBER_SET = [x for x in range(1, 10)]
-
-    # CANDIDATES_SET =
+    candidates = baseball_number_set_maker()
+    candidates_dict = {str(candidate): 1 for candidate in candidates}
 
     IDX_TRIAL = 0
     IDX_STRIKE = 1
@@ -39,12 +46,31 @@ def solution(baseball):
     while(baseball):
         this_turn = baseball.pop(0)
 
-        trial = this_turn[IDX_TRIAL]
-        strike = this_turn[IDX_STRIKE]
-        ball = this_turn[IDX_BALL]
+        trial = str(this_turn[IDX_TRIAL])
+        guess_strike = this_turn[IDX_STRIKE]
+        guess_ball = this_turn[IDX_BALL]
 
+        for candidate in candidates_dict:
+            strike = 0
+            ball = 0
+            if candidates_dict[candidate] == 1:
+                for idx in range(len(trial)):
+                    if trial[idx] == candidate[idx]:
+                        strike += 1
+                    for jdx in range(len(this_turn)):
+                        if trial[idx] == candidate[jdx]:
+                            ball += 1
+                ball -= strike
+                if guess_ball == ball and guess_strike == strike:
+                    pass
+                else:
+                    candidates_dict[candidate] = 0
+            else:
+                pass
 
-
+    for candidate in candidates_dict:
+        if candidates_dict[candidate] == 1:
+            answer += 1
     return answer
 
 
@@ -58,7 +84,6 @@ def baseball_number_set_maker():
 
 
 def attaching_number(making, number_remain, number_set):
-
     if len(making) == CONSTANT['size']:
         number_set.append(int(making))
         return
@@ -72,5 +97,4 @@ def attaching_number(making, number_remain, number_set):
 
 if __name__ == '__main__':
     baseball = [[123, 1, 1], [356, 1, 0], [327, 2, 0], [489, 0, 1]]  # 2
-    baseball_number_set_maker()
     print(solution(baseball))
