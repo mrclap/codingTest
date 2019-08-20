@@ -31,9 +31,46 @@ import unittest
 - 도무지 방법이 떠오르지 않아 '질문하기'를 cheating했다.
 - 나는 계속해서 'A'를 피하는 방법에 대해 고민했는데 오히려 'A'가 아닌 알파벳을 찾아가는 방식으로 접근해야 쉽게 풀이가 가능해보인다.
 
-
-
 '''
+
+def solution(name):
+    answer = 0
+    name_list = [each for each in name]
+
+    # 조이스틱 상하 이동 계산
+    for each in name_list:
+        answer += min(ord(each)-ord('A'), ord('Z')+1-ord(each))
+
+    left_right_steps = []
+
+    def dfs(cursor_idx, name_list, current_steps):
+        is_over = True
+        for each in name_list:
+            if each != 'A':
+                is_over = False
+        if is_over:
+            return left_right_steps.append(current_steps)
+
+        is_entered = False
+        for idx in range(len(name_list)):
+            if name_list[cursor_idx + idx] != 'A':
+                new_name_list = name_list
+                new_name_list[cursor_idx + idx] = 'A'
+                dfs(cursor_idx=cursor_idx + idx, name_list=new_name_list, current_steps=current_steps + idx )
+                is_entered = True
+            if name_list[cursor_idx - idx] != 'A':
+                new_name_list = name_list
+                new_name_list[cursor_idx - idx] = 'A'
+                dfs(cursor_idx=cursor_idx - idx, name_list=new_name_list, current_steps=current_steps + idx)
+                is_entered = True
+
+            if is_entered:
+                return
+    dfs(0, name_list, 0)
+
+    answer += min(left_right_steps)
+    return answer
+
 
 
 '''
@@ -51,7 +88,7 @@ import unittest
 >> 너무 지저분한 코드와 로직... 반성하자.. 심지어 틀렸다.
 
 '''
-def solution(name):
+def solution1(name):
     answer = 0
     name_list = [each for each in name]
     for each in name_list:
