@@ -32,7 +32,6 @@ import unittest
 - 나는 계속해서 'A'를 피하는 방법에 대해 고민했는데 오히려 'A'가 아닌 알파벳을 찾아가는 방식으로 접근해야 쉽게 풀이가 가능해보인다.
 
 '''
-
 def solution(name):
     answer = 0
     name_list = [each for each in name]
@@ -138,7 +137,9 @@ if __name__ == '__main__':
     print(solution('JEROEN'))
     print(solution('JAN'))
     print(solution('AAAAAAAAAAAA'))
-    print(solution('JAAAAAAAAJAAAAAAM'))
+    print(solution('JAJAAAAAAM'))
+    print(solution_benchmark('JAJAAAAAAM'))
+    print(solution_benchmark('AAAAAAAAAAAA'))
 
 
 

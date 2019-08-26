@@ -1,243 +1,281 @@
-from datetime import datetime
+import unittest
 
 '''
-점심시간에 도둑이 들어, 일부 학생이 체육복을 도난당했습니다.
-다행히 여벌 체육복이 있는 학생이 이들에게 체육복을 빌려주려 합니다.
-학생들의 번호는 체격 순으로 매겨져 있어,
-바로 앞번호의 학생이나 바로 뒷번호의 학생에게만 체육복을 빌려줄 수 있습니다.
-예를 들어, 4번 학생은 3번 학생이나 5번 학생에게만 체육복을 빌려줄 수 있습니다.
-체육복이 없으면 수업을 들을 수 없기 때문에
-체육복을 적절히 빌려 최대한 많은 학생이 체육수업을 들어야 합니다.
+어떤 숫자에서 k개의 수를 제거했을 때 얻을 수 있는 가장 큰 숫자를 구하려 합니다.
+예를 들어, 숫자 1924에서 수 두 개를 제거하면 [19, 12, 14, 92, 94, 24] 를 만들 수 있습니다. 이 중 가장 큰 숫자는 94 입니다.
+문자열 형식으로 숫자 number와 제거할 수의 개수 k가 solution 함수의 매개변수로 주어집니다.
+number에서 k 개의 수를 제거했을 때 만들 수 있는 수 중 가장 큰 숫자를 문자열 형태로 return 하도록 solution 함수를 완성하세요.
 
-전체 학생의 수 n,
-체육복을 도난당한 학생들의 번호가 담긴 배열 lost,
-여벌의 체육복을 가져온 학생들의 번호가 담긴 배열 reserve가 매개변수로 주어질 때,
-체육수업을 들을 수 있는 학생의 최댓값을 return 하도록 solution 함수를 작성해주세요.
+제약조건 
+number는 1자리 이상, 1,000,000자리 이하인 숫자입니다.
+k는 1 이상 number의 자릿수 미만인 자연수입니다.
 '''
 
 '''
-6/25 코드 개선 / 밴치마크 코드(programmers)
-
-코드가 마음에 들지 않아 아예 처음부터 다시 짜보았다.
-비록 코드가 조금 길어지기는 하지만,
-lost와 reserve의 중복을 제거하는 로직에서 for문의 중복을 피하기 위해 dictionary(->list)를 사용했다.
-
-1) 작성 후, 다른 분께서 
-`[r for r in reserve if r not in lost]의 이중for문을 통해 아주 간결하게 짜놓은 코드와 성능비교를 했는데...`
-내 코드가 30배 가량 *느렸다...*
-
-2) 조건을 조금 극단적으로 주었더니 
-    n = 10001 
-    lost = [i for i in range(10000, 1, -1) if i % 2 == 1],
-    reserve = [i for i in range(10000, 1, -1) if i % 2 == 0]
-list의 성능이 월등히 좋아졌다.
-    
-
+8/26 cheating
+    programmers에서 문제를 푼 다른분들의 답을 보니, 미리 list에 숫자를 모두 넣는것이 아니라.
+    stack방식으로 하나씩 숫자를 추가하고, 조건에따라 검증하여 삭제하는 방식을 취했다...
+    이게 자료구조의 힘이구나 .. 난 공부가 많이 필요하다...
 '''
 
-def solution_benchmark(n, lost, reserve):
-    _reserve = [r for r in reserve if r not in lost]
-    _lost = [l for l in lost if l not in reserve]
-    for r in _reserve:
-        f = r - 1
-        b = r + 1
-        if f in _lost:
-            _lost.remove(f)
-        elif b in _lost:
-            _lost.remove(b)
-    return n - len(_lost)
 
+def solution(number, k):
+    number_stack = []
 
-def solution(n, lost, reserve):
-    # lost.sort()
-    # reserve.sort()
-
-    answer = n - len(lost)
-
-    '''
-    LOGIC
-    1) lost와 reserve에 모두 존재하는 학생 제거
-    2) lost학생의 앞뒤 체크
-        2.1) index: 1 -> 뒤만 체크
-        2.2) index: n -> 앞만 체크
-    '''
-
-    # 1) lost와 reserve에 모두 존재하는 학생 제거
-        # loop 효율을 위해 dictionary사용
-    lost_dict = [False for i in range(0, n+2)]
-    for l in lost:  # n
-        lost_dict[l] = True
-
-    spare_dict = [False for i in range(0, n+2)]
-    for r in reserve:   # n
-        spare_dict[r] = True
-
-    for i in spare_dict:  # n
-        if lost_dict[i] is True and spare_dict[i] is True:
-            lost_dict[i], spare_dict[i] = False, False
-            answer += 1
-
-    # 2) lost학생의 앞뒤 체크
-    for i in lost_dict:  # n
-        if lost_dict[i]:
-            if i != 1 and spare_dict[i-1]:
-                spare_dict[i-1] = False
-                answer += 1
-            elif i != n and spare_dict[i+1]:
-                spare_dict[i+1] = False
-                answer += 1
-
-    return answer
-
+    for num in number:
+        while number_stack and number_stack[-1] < num and k > 0:
+            number_stack.pop()
+            k -= 1
+        number_stack.append(num)
+    return ''.join(number_stack[:len(number)-k])
 
 
 '''
-6/25 3차 시도 - 성공
+8/21 5차 시도
 
-시도한 풀이:
-    - 1차 시도 + 여벌의 체육복을 가져온 학생이 도난 당했을 경우를 추가
-        - >> 2개 정답 추가
-    - 2차 시도 + 여벌의 체육복 가져온 학생을 우선하여 처리
+결과
+    - 정답률 : 7/12
+    - 엉망..2
+    - '-1'이 2개 이상 연속으로 있는 경우에 대한 처리를 하였으나,,, 8,10번 포함 더 틀림...
+    what.. the ...
+
 '''
 
-def solution3(n, lost, reserve):
-    lost.sort()
-    reserve.sort()
 
-    # 여벌의 체육복을 가져온 학생에 대한 dictionary
-    lost_dict = {i: 0 for i in range(1, n+1)}
-    for l in lost:
-        lost_dict[l] = 1
 
-    available_dict = {i: 0 for i in range(1, n+1)}
-    answer = n - len(lost)
 
-    for r in reserve:
-        if lost_dict[r] == 1:
-            answer += 1
-            lost.remove(r)  # 이 부분이 아주 마음에 들지 않음..
+ELIMINATED = -1
+
+
+def solution5(number, k):
+    answer = ''
+    number_list = [int(each) for each in number]
+
+    idx = 0
+    idx_offset = 1
+    count = 0
+    while True:
+        # 마지막까지 가면
+        if idx == (len(number_list) - count - 1):
+            number_list[idx] = ELIMINATED
+            count += 1
+            idx -= 1
+        # 이미 삭제된 자리이면
+        elif number_list[idx] == ELIMINATED:
+            idx += 1
+        # 조건을 만족하면
         else:
-            available_dict[r] = 1
+            if number_list[idx+1] == ELIMINATED:
+                while number_list[idx+idx_offset] == ELIMINATED:
+                    idx_offset += 1
 
-    for l in lost:
-        if l != 1 and available_dict[l-1] == 1:
-            answer += 1
-            available_dict[l-1] = 0
-        elif l != n and available_dict[l+1] == 1:
-            answer += 1
-            available_dict[l+1] = 0
+            if number_list[idx] < number_list[idx+idx_offset]:
+                number_list[idx] = ELIMINATED
+                count += 1
+                idx = 0
+            else:
+                idx += 1
 
-    return answer
+            idx_offset = 1
+
+        if k == count:
+            # -1 제외한 숫자를 str으로 변환
+            for number in number_list:
+                if number != ELIMINATED:
+                    answer += str(number)
+
+            return answer
+
+    return 'error'
 
 '''
-6/25 2차 시도 - 12개 중 2개 오답
+8/21 4차 시도
 
-시도한 풀이:
-    - 1차 시도 + 여벌의 체육복을 가져온 학생이 도난 당했을 경우를 추가
-        - >> 2개 정답 추가
-
-오류 탐색:
-    - 더 앞의 학생이 이미 여벌의 체육복을 가져왔지만, 체육복을 도난당한 학생에게 체육복을 빌려버리는 경우가 생김.
-        - >> 우선적으로 여벌을 가져왔으나 도난당한 친구들을 빼주어야 함.
-
-
-'''
-
-def solution2(n, lost, reserve):
-    lost.sort()
-    reserve.sort()
-
-    available_dict = {i: 0 for i in range(1, n+1)}
-    answer = n - len(lost)
-    for r in reserve:
-        available_dict[r] = 1
-
-    for l in lost:
-        if available_dict[l] == 1:  # added in 2nd trial
-            answer += 1
-            available_dict[l] = 0
-        elif l != 1 and available_dict[l-1] == 1:
-            answer += 1
-            available_dict[l-1] = 0
-        elif l != n and available_dict[l+1] == 1:
-            answer += 1
-            available_dict[l+1] = 0
-
-    return answer
+결과
+    - 정답률 : 3/12
+    - 엉망..
+    - 삭제될 수에 '-1'을 대입하는 방식으로 진행하였으나 ... 결과가 엉망이다.
+    -> '-1'이 2개 이상 연속으로 있는 경우에 대한 처리가 필요했다.
 
 
 '''
-6/24 1차 시도 - 12개 중 4개 오답.
 
-시도한 풀이:
-    체육복을 추가로 가져온 학생(reserve)을 dictionary를 이용해 표시하고,
-    체육복을 잃어버린 학생(lost)로 for loop을 돌며
-        1) 해당 학생보다 앞의 학생이 체육복 여벌 가져왔는지 check
-        2) 해당 학생 다음의 학생이 체육복 여벌 가져왔는지 check
-        
-오류 탐색:
-    - 1
-        - 1) 앞의 학생이 여벌옷을 가져왔는지 먼저 탐색하고,
-        - 2) 뒤의 학생이 여벌옷을 가져왔는지 확인하는 방법에 문제가 있는가 ?
-        - >> lost탐색 시 앞의 학생부터 차례대로 검사한다면 문제 없음.
-    - 2
-        - 예외처리에 문제가 있는가?
-        - >> oops!! 여벌 체육복을 가져온 학생이 체육복을 도난당했을 수 있습니다. 
+ELIMINATED = -1
+
+
+def solution4(number, k):
+    answer = ''
+    number_list = [int(each) for each in number]
+
+    idx = 0
+    idx_offset = 1
+    count = 0
+    while True:
+        # 마지막까지 가면
+        if idx == (len(number_list) - count - 1):
+            number_list[idx] = ELIMINATED
+            count += 1
+            idx -= 1
+        # 이미 삭제된 자리이면
+        elif number_list[idx] == ELIMINATED:
+            idx += 1
+        # 조건을 만족하면
+        else:
+            if number_list[idx+1] == ELIMINATED:
+                idx_offset += 1
+
+            if number_list[idx] < number_list[idx+idx_offset]:
+                number_list[idx] = ELIMINATED
+                count += 1
+                idx = 0
+            else:
+                idx += 1
+
+            idx_offset = 1
+
+        if k == count:
+            # -1 제외한 숫자를 str으로 변환
+            for number in number_list:
+                if number != ELIMINATED:
+                    answer += str(number)
+
+            return answer
+
+    return 'error'
+
+'''
+8/20 3차 시도
+    
+결과
+    - 정답률 : 7/12
+    - 5번 ~ 10번 시간초과
+    - hashmap을 이용해서 pop이후 list를 재배치하는 연산을 줄이려고 했는데
+    오히려 시간이 더 걸린다.
+    
     
 '''
 
-def solution1(n, lost, reserve):
-    lost.sort()
-    reserve.sort()
 
-    available_dict = {i: 0 for i in range(1, n+1)}
-    answer = n - len(lost)
-    for r in reserve:
-            available_dict[r] = 1
-    for l in lost:
-        if l != 1 and available_dict[l-1] == 1:
-            answer += 1
-            available_dict[l-1] = 0
-        elif l != n and available_dict[l+1] == 1:
-            answer += 1
-            available_dict[l+1] = 0
+def solution3(number, k):
+    number_list = {idx: number[int(idx)] for idx in range(len(number))}
 
-    return answer
+    idx = 0
+    # print(list(number_list.keys()))
+
+    while True:
+        number_list_keys = list(number_list.keys())
+        hash_key = number_list_keys[idx]
+        if hash_key == number_list_keys[-1]:
+            del number_list[hash_key]
+            k -= 1
+            idx = 0
+        elif number_list[hash_key] < number_list[number_list_keys[idx+1]]:
+            del number_list[hash_key]
+            k -= 1
+            idx = 0
+        else:
+            idx += 1
+
+        if k == 0:
+            return ''.join(list(number_list.values()))
+
+    return 'error'
 
 
-def test():
-    n, lost, reserve = 10001, [i for i in range(10000, 1, -1) if i % 2 == 1], \
-                       [i for i in range(10000, 1, -1) if i % 2 == 0]
+'''
+8/20 2차 시도
+    치명적인 실수, 해당 idx가 마지막 idx인지 확인할때는 값이 같은지 확인하는게 아니다!!
+    
+결과
+    - 정답률 : 10/12
+    - 8번 10번 시간초과
+    - if k == 0인 조건을 성립하지 못하는 케이스가 있는지 살펴보자.
+'''
 
-    start = datetime.now()
-    for i in range(LOOP_COUNTER):
-        solution(n, lost, reserve)
-    print(datetime.now() - start)
 
-    start = datetime.now()
-    for i in range(LOOP_COUNTER):
-        solution_benchmark(n, lost, reserve)
-    print(datetime.now() - start)
+def solution2(number, k):
+    number_list = [each for each in number]
 
+    idx = 0
+    while True:
+        if idx == len(number_list)-1:
+            number_list.pop(idx)
+            k -= 1
+            idx = 0
+        elif number_list[idx] < number_list[idx+1]:
+            number_list.pop(idx)
+            k -= 1
+            idx = 0
+        else:
+            idx += 1
+        if k == 0:
+            return ''.join(number_list)
+
+    return 'error'
+
+
+'''
+8/20 1차시도
+
+test case
+    - 943254, 1 => 2(idx:3)삭제
+    - 38565, 3 => 3(0), 5(2), 5(4) 삭제
+    - 9124, 2 => 1(1), 4(3) 삭제
+    - 1434928, 2 => 1(0), 3(2) 삭제
+    -> 가장 왼쪽부터 쭉 훑으면서 1)왼쪽의 수가 2)그 바로 다음 수보다 작으면 삭제, 없으면 마지막 삭제
+    
+결과
+    - 정답률 : 7/12
+    
+'''
+
+
+def solution1(number, k):
+    number_list = [each for each in number]
+
+    idx = 0
+    while True:
+        if number_list[idx] == number_list[-1] or number_list[idx] < number_list[idx+1]:
+            number_list.pop(idx)
+            k -= 1
+            idx = 0
+        else:
+            idx += 1
+
+        if k == 0:
+            return ''.join(number_list)
+
+    return 'error'
+
+
+# test Module
+class TestMethods(unittest.TestCase):
+    def test_solution(self):
+        self.assertEqual(solution("1924", 2), "94")
+        self.assertEqual(solution("1231234", 3), "3234")
+        self.assertEqual(solution("4177252841", 4), "775841")
+        # 추가
+        self.assertEqual(solution("333311", 2), "3333")
+        self.assertEqual(solution("111133255", 2), "1133255")
+
+        # 추가2
+        self.assertEqual(solution("11111133255", 3), "11133255")
+
+        # extreme test case
+        # long_str = "".join(["1" for e in range(1_000_000)])
+        # long_str_answer = "".join(["1" for e in range(999_999, 1_000_000)])
+        # self.assertEqual(solution(long_str, 999_999), long_str_answer)
+        #
+        # long_str = "".join(["9" for e in range(1_000_000)])
+        # long_str_answer = "".join(["9" for e in range(999_999, 1_000_000)])
+        # self.assertEqual(solution(long_str, 999_999), long_str_answer)
 
 
 if __name__ == '__main__':
-    LOOP_COUNTER = 1
-    # n, lost, reserve = 5, [2, 4], [1, 3, 5]  # 5
-    # print(solution(n, lost, reserve))
-
-    # n, lost, reserve = 5, [2, 4], [3]  # 4
-    # print(solution(n, lost, reserve))
-
-    # n, lost, reserve = 3, [3], [1]  # 2
-    # print(solution(n, lost, reserve))
-
-    n, lost, reserve = 3, [1, 2, 3], [1, 2, 3]  # 1
-    print(solution(n, lost, reserve))
-
-    # test()
-
-
+    unittest.main()
+    # print(solution("1924", 2))
+    # print(solution("1231234", 3))
+    # print(solution("111133255", 2))
 
 
 
