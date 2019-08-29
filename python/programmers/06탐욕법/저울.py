@@ -20,6 +20,47 @@ import unittest
 '''
 
 '''
+8/28 시도3
+    recursive를 사용하다보니.. 21개의 추로 구성 된 문제를 푸는데에 7초가 넘게 걸린다.
+    recursive를 줄이거나 사용하지 않는 법으로 가야하는데 ..
+    심지어 제약조건이 추가 10,000개 이하이다...
+    
+    풀이를 cheating하였다...
+    
+
+'''
+def benchmark_solution(weight):
+    weight.sort()
+    ans = 1
+    for e in weight:
+        if ans < e:
+            break
+        ans += e
+
+    return ans
+
+
+def solution(weight):
+    weight.sort()
+
+    if weight[0] != 1:
+        return 1
+
+    sum = []
+    tmp_sum = 0
+
+    for idx in range(len(weight)):
+        tmp_sum += weight[idx]
+        sum.append(tmp_sum)
+        if idx < len(weight)-1 and tmp_sum+1 < weight[idx+1]:
+            return tmp_sum+1
+    return sum[-1]+1
+
+    # https://ydeer.tistory.com/55
+
+
+
+'''
 8/28 시도2
     이번에는 weight를 정렬 후 재귀를 통해 추를 하나씩 뺴도록 해보았음.
     
@@ -29,21 +70,20 @@ import unittest
 '''
 
 
-def solution(weight):
+def solution2(weight):
     answer = 0
     weight.sort()
 
     compare = 1
-    print(weight)
 
     while True:
-        if not subtract_recursive(compare, weight):
+        if not subtract_recursive2(compare, weight):
             return compare
         compare += 1
     return answer
 
 
-def subtract_recursive(left, weight):
+def subtract_recursive2(left, weight):
     _weight = weight.copy()
     _left = left
 
@@ -52,6 +92,7 @@ def subtract_recursive(left, weight):
             _weight.pop(idx)
         elif _weight[idx] <= _left:
             _left = _left - _weight[idx]
+            _weight.pop(idx)
             if _left == 0:
                 return True
             subtract_recursive(_left, _weight)
@@ -100,10 +141,16 @@ def recursive(combination, unused_weight, combination_list):
 
         recursive(_combination, _unused_weight, combination_list)
 
+
 # test Module
 class TestMethods(unittest.TestCase):
     def test_solution(self):
         self.assertEqual(solution([3, 1, 6, 2, 7, 30, 1]), 21)
+        self.assertEqual(solution([1, 1, 1]), 4)
+        self.assertEqual(solution([1, 2, 3]), 7)
+        self.assertEqual(solution([1, 10]), 2)
+        self.assertEqual(solution([1, 1, 3]), 6)
+        # self.assertEqual(solution([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]), 22)
 
 
 if __name__ == '__main__':
