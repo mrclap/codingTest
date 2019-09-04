@@ -23,9 +23,10 @@ import unittest
 9/2 시도2
     식을 간단히 하여 다시 동일한 방법으로 풀었다.
     Pop을 사용하면 O(N)만큼 시간을 손해본다고 생각하였는데, 결론적으로
-    다른분들이 pop을 이용하여 푼것보다 속도가 더 안나온다..
+    다른분들이 pop을 이용하여 푼것보다 속도가 더 안나온다
     
-    왜 pop이 전혀 안느려지는걸까..
+    왜 pop이 전혀 안느려지는걸까?
+    아니면.. 내 코드가 더 부가적으로하는 작업이 많나보다
     
 '''
 
@@ -41,7 +42,7 @@ def solution(n, computers):
             node = q[idx]
             if not visited.get(node):
                 visited[node] = True
-                for jdx in range(len(computers[node])):  # O(N)
+                for jdx in range(node, len(computers[node])):  # O(N)
                     if computers[node][jdx] == 1 and jdx != node:
                         q.append(jdx)
             else:
@@ -135,7 +136,7 @@ class TestMethods(unittest.TestCase):
         # extreme case test
         import datetime
 
-        N = 5000
+        N = 10000
         adj_matrix = []
         for idx in range(N):
             inner_list = list()
